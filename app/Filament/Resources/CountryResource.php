@@ -38,8 +38,7 @@ class CountryResource extends Resource
                     ->required()
                     ->maxLength(50),
                 Forms\Components\TextInput::make('code')
-                    ->required()
-                    ->numeric(),
+                    ->required(),
                 Forms\Components\TextInput::make('phonecode')
                 ->required()
                 ->numeric()
@@ -50,7 +49,18 @@ class CountryResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('id')
+                ->numeric(),
+                Tables\Columns\TextColumn::make('name')
+                ->searchable()
+                ->sortable(),
+                Tables\Columns\TextColumn::make('code')
+                ->searchable(),
+                Tables\Columns\TextColumn::make('phonecode')
+                ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                ->dateTime()
+                ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
