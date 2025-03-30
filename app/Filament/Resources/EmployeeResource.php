@@ -8,20 +8,26 @@ use App\Models\City;
 use App\Models\Employee;
 use App\Models\State;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\Tabs;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+
+
+use Filament\Resources\Components\Tab;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Forms\Set;
 
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class EmployeeResource extends Resource
@@ -72,6 +78,7 @@ class EmployeeResource extends Resource
                     ->required(),
 
                 Forms\Components\Select::make('state_id')
+                    ->label('State')
                     ->options(fn(Get $get): Collection => State::query()
                     ->where('country_id', $get('country_id'))
                     ->pluck('name','id'))
@@ -82,6 +89,7 @@ class EmployeeResource extends Resource
                     ->afterStateUpdated(fn(Set $set)=> $set('city_id', null))
                     ->required(),
                 Forms\Components\Select::make('city_id')
+                    ->label('City')
                     ->options(fn(Get $get): Collection => City::query()
                     ->where('state_id', $get('state_id'))
                     ->pluck('name','id'))
@@ -171,6 +179,30 @@ class EmployeeResource extends Resource
                 ->relationship('department',titleAttribute:"name")
                 ->searchable()
                 ->preload(),
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from')->native(false),
+                        DatePicker::make('created_until')->native(false),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['created_from'] && ! $data['created_until']) {
+                            return null;
+                        }
+
+                        return 'Created from ' . Carbon::parse($data['created_from'])->toFormattedDateString() .
+                            ' to ' . Carbon::parse($data['created_until'])->toFormattedDateString();
+                    })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -181,7 +213,9 @@ class EmployeeResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+
     }
+
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist

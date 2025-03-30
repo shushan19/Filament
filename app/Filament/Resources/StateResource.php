@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\StateResource\Pages;
 use App\Filament\Resources\StateResource\RelationManagers;
+use App\Filament\Resources\StateResource\RelationManagers\CountryRelationManager;
 use App\Models\State;
 use Filament\Forms;
 use Filament\Infolists\Components\Section;
@@ -33,6 +34,7 @@ class StateResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('State Name')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('country_id')
@@ -41,7 +43,6 @@ class StateResource extends Resource
                     ->preload()
                     ->native(false)
                     ->required(),
-
             ]);
     }
 
@@ -81,7 +82,8 @@ class StateResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+                CountryRelationManager::class,
+                RelationManagers\CitiesRelationManager::class,
         ];
     }
     public static function infolist(Infolist $infolist): Infolist
