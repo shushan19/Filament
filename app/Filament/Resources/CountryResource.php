@@ -7,6 +7,9 @@ use App\Filament\Resources\CountryResource\RelationManagers;
 use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -22,7 +25,7 @@ class CountryResource extends Resource
 
     protected  static ?string $navigationLabel = 'Country';
 
-    protected static ?string $modelLabel = 'Employee Country';
+    protected static ?string $modelLabel = 'Country';
 
     protected static ?string $navigationGroup = 'System Management';
 
@@ -52,11 +55,14 @@ class CountryResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                 ->numeric(),
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Country Name')
                 ->searchable()
                 ->sortable(),
                 Tables\Columns\TextColumn::make('code')
+                    ->label('Country Code')
                 ->searchable(),
                 Tables\Columns\TextColumn::make('phonecode')
+                    ->label('Phone Code')
                 ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
@@ -66,12 +72,27 @@ class CountryResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ]);
+    }
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Country Info')
+                    ->schema([
+                        TextEntry::make('id')->label('Country ID'),
+                        TextEntry::make('name')->label('Country Name'),
+                        TextEntry::make('code')->label('Country Code'),
+                        TextEntry::make('phonecode')->label('Phone Code'),
+                    ])->columns(2)
+
             ]);
     }
 
