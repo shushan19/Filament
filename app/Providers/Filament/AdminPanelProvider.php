@@ -36,6 +36,11 @@ class  AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
             ])
             ->font('Poppins')
+            ->navigationGroups([
+                'Employee Management',
+                'System Management',
+                'User Management',
+            ])
             ->brandName('Filament')
             ->brandLogo(asset('images/logo.png'))
             ->favicon(asset('images/logo.png'))
