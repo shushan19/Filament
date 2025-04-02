@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources;
 
+
+use App\Filament\Exports\EmployeeExporter;
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers;
 use App\Models\City;
@@ -166,6 +168,7 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
+
                 Tables\Columns\TextColumn::make('country.name')
                     ->searchable()
                     ->sortable(),
@@ -248,10 +251,14 @@ class EmployeeResource extends Resource
                         ->title('Employyee Deleted Successfully')
                 )
             ])
+            ->headerActions(
+                [
+                    Tables\Actions\ExportAction::make('Export Table')->exporter(EmployeeExporter::class),
+                ]
+            )
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\ExportBulkAction::make()->exporter(EmployeeExporter::class),
             ]);
 
     }
